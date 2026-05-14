@@ -81,4 +81,47 @@ export const services = {
   regulatoryCompliances: createService('regulatory-compliances'),
 };
 
+// ── Simulation runs (live monitoring + history) ──────────────────────────
+export const simulationRuns = {
+  list: (params) => API.get('/simulation-runs', { params }),
+  get: (id) => API.get(`/simulation-runs/${id}`),
+  create: (data) => API.post('/simulation-runs', data),
+  complete: (id, data) => API.patch(`/simulation-runs/${id}/complete`, data),
+  pdfReport: (id) => `${API.defaults.baseURL}/simulations/${id}/report/pdf`,
+};
+
+// ── Analytics: safety metrics dashboard ──────────────────────────────────
+export const analytics = {
+  safetyMetrics: () => API.get('/analytics/safety-metrics'),
+};
+
+// ── AI extended endpoints ────────────────────────────────────────────────
+export const aiExtended = {
+  compareScenarios: (scenario_ids) => API.post('/ai/compare-scenarios', { scenario_ids }),
+  complianceCheck: (data) => API.post('/ai/compliance-check', data),
+  sensorFusionRecommendation: (data) => API.post('/ai/sensor-fusion-recommendation', data),
+  scoreScenario: (scenario_id) => API.post('/ai/score-scenario', { scenario_id }),
+  fleetMaintenanceDue: () => API.get('/ai/fleet-maintenance-due'),
+  scenarioGenerate: (data) => API.post('/ai/scenario-generate', data),
+  safetyAssessment: (data) => API.post('/ai/safety-assessment', data),
+  // SSE stream URL helper (token must be appended via fetch with Authorization header)
+  analyzeSimulationStreamUrl: (runId) => `${API.defaults.baseURL}/ai/analyze-simulation/stream?runId=${runId}`,
+};
+
+// ── AI Results history ────────────────────────────────────────────────────
+export const aiResults = {
+  getAll: (params) => API.get('/ai-results', { params }),
+  getOne: (id) => API.get(`/ai-results/${id}`),
+};
+
+// ── Training session progress simulator ──────────────────────────────────
+export const trainingSessions = {
+  simulateProgress: (id, data) => API.post(`/training-sessions/${id}/simulate-progress`, data),
+};
+
+// ── Dashboard risk score ──────────────────────────────────────────────────
+export const dashboardRisk = {
+  getRiskScore: () => API.get('/dashboard/risk-score'),
+};
+
 export default API;

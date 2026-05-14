@@ -1,5 +1,6 @@
 const express = require('express');
 const authMiddleware = require('../middleware/auth');
+const { callOpenRouter } = require('../middleware/openrouter');
 const { VehicleModel, SensorConfig, DrivingScenario, TrainingSession,
   SimulationResult, RoutePlan, ObjectDetection, TrafficSimulation,
   WeatherSimulation, SafetyMetric, FleetVehicle, MapEnvironment,
@@ -111,6 +112,66 @@ router.get('/analytics', authMiddleware, async (req, res) => {
       riskDistribution,
       fleetVehicles: fleetVehicles.map(f => f.toJSON()),
       recentActivity: recentItems.slice(0, 15)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/dashboard/risk-score ─────────────────────────────────────────
+router.get('/risk-score', authMiddleware, async (req, res) => {
+  try {
+    const [safetyMetrics, simResults, collisions, compliances] = await Promise.all([
+      SafetyMetric.findAll({ attributes: ['score', 'maxScore', 'passRate', 'riskLevel', 'category'] }),
+      SimulationResult.findAll({ attributes: ['grade', 'successRate', 'collisions'] }),
+      CollisionAnalysis.findAll({ attributes: ['severity', 'avoidable'] }),
+      RegulatoryCompliance.findAll({ attributes: ['complianceStatus'] }),
+    ]);
+
+    // Compute raw risk components
+    const avgSafetyScore = safetyMetrics.length
+      ? safetyMetrics.reduce((s, m) => s + ((m.score / (m.maxScore || 100)) * 100), 0) / safetyMetrics.length
+      : 50;
+    const avgSimSuccess = simResults.length
+      ? simResults.reduce((s, r) => s + (r.successRate || 0), 0) / simResults.length
+      : 50;
+    const criticalCollisions = collisions.filter(c => c.severity === 'critical' || c.severity === 'high').length;
+    const compliancePass = compliances.filter(c => c.complianceStatus === 'compliant' || c.complianceStatus === 'passed').length;
+    const compliancePct = compliances.length ? (compliancePass / compliances.length) * 100 : 50;
+
+    // Weighted risk index (lower = safer)
+    const riskIndex = Math.max(0, Math.min(100,
+      100
+      - (avgSafetyScore * 0.35)
+      - (avgSimSuccess * 0.30)
+      - (compliancePct * 0.20)
+      + (criticalCollisions * 2)
+    ));
+
+    const riskLabel = riskIndex < 20 ? 'Low' : riskIndex < 40 ? 'Moderate' : riskIndex < 65 ? 'High' : 'Critical';
+
+    // AI narrative
+    const prompt = `Generate a brief risk narrative for an AV simulator fleet with these metrics:
+Risk Index: ${riskIndex.toFixed(1)}/100 (${riskLabel})
+Average Safety Score: ${avgSafetyScore.toFixed(1)}%
+Average Simulation Success: ${avgSimSuccess.toFixed(1)}%
+Compliance Rate: ${compliancePct.toFixed(1)}%
+Critical/High Collisions: ${criticalCollisions}`;
+
+    const systemPrompt = `You are an AV safety expert. Respond ONLY with valid JSON with keys: narrative (string, 2-3 sentences), top_risks (array of strings, max 3), immediate_actions (array of strings, max 3).`;
+    const aiResult = await callOpenRouter(prompt, systemPrompt, true);
+
+    res.json({
+      risk_index: parseFloat(riskIndex.toFixed(1)),
+      risk_label: riskLabel,
+      components: {
+        avg_safety_score: parseFloat(avgSafetyScore.toFixed(1)),
+        avg_sim_success: parseFloat(avgSimSuccess.toFixed(1)),
+        compliance_pct: parseFloat(compliancePct.toFixed(1)),
+        critical_collisions: criticalCollisions
+      },
+      ai_narrative: aiResult,
+      computed_at: new Date().toISOString()
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

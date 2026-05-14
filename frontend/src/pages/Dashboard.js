@@ -124,6 +124,15 @@ function Dashboard({ onLogout, theme, setTheme }) {
           <button className="quick-action-btn" onClick={() => navigate('/settings')}>⚙️ Settings</button>
         </div>
 
+        {/* Advanced AI workflows */}
+        <div className="quick-actions" style={{ marginTop: 8 }}>
+          <button className="quick-action-btn" onClick={() => navigate('/simulation-runs')}>🎬 Simulation Runs</button>
+          <button className="quick-action-btn" onClick={() => navigate('/safety-metrics-dashboard')}>🛡️ Safety Dashboard</button>
+          <button className="quick-action-btn" onClick={() => navigate('/scenario-comparison')}>🆚 Scenario Compare</button>
+          <button className="quick-action-btn" onClick={() => navigate('/compliance-pathway')}>📋 Regulatory Pathway</button>
+          <button className="quick-action-btn" onClick={() => navigate('/ai-scenario-safety')}>🧪 Scenario & Safety AI</button>
+        </div>
+
         {/* Search */}
         <div className="dashboard-search-container">
           <input

@@ -10,6 +10,13 @@ import Analytics from './pages/Analytics';
 import AuditLogPage from './pages/AuditLogPage';
 import FavoritesPage from './pages/FavoritesPage';
 import Settings from './pages/Settings';
+import SimulationRunsPage from './pages/SimulationRunsPage';
+import AIStreamAnalysisPage from './pages/AIStreamAnalysisPage';
+import ScenarioComparisonPage from './pages/ScenarioComparisonPage';
+import CompliancePathwayPage from './pages/CompliancePathwayPage';
+import SafetyMetricsPage from './pages/SafetyMetricsPage';
+import AIScenarioSafetyPage from './pages/AIScenarioSafetyPage';
+import ExtensionsPage from './pages/ExtensionsPage'; // Apply pass 5
 import './App.css';
 
 const features = [
@@ -78,6 +85,27 @@ function App() {
           } />
           <Route path="/settings" element={
             isAuthenticated ? <Settings onLogout={handleLogout} theme={theme} setTheme={setTheme} /> : <Navigate to="/" />
+          } />
+          <Route path="/simulation-runs" element={
+            isAuthenticated ? <SimulationRunsPage onLogout={handleLogout} /> : <Navigate to="/" />
+          } />
+          <Route path="/ai-stream-analysis/:runId" element={
+            isAuthenticated ? <AIStreamAnalysisPage onLogout={handleLogout} /> : <Navigate to="/" />
+          } />
+          <Route path="/scenario-comparison" element={
+            isAuthenticated ? <ScenarioComparisonPage onLogout={handleLogout} /> : <Navigate to="/" />
+          } />
+          <Route path="/compliance-pathway" element={
+            isAuthenticated ? <CompliancePathwayPage onLogout={handleLogout} /> : <Navigate to="/" />
+          } />
+          <Route path="/safety-metrics-dashboard" element={
+            isAuthenticated ? <SafetyMetricsPage onLogout={handleLogout} /> : <Navigate to="/" />
+          } />
+          <Route path="/ai-scenario-safety" element={
+            isAuthenticated ? <AIScenarioSafetyPage onLogout={handleLogout} /> : <Navigate to="/" />
+          } />
+          <Route path="/extensions" element={
+            isAuthenticated ? <ExtensionsPage /> : <Navigate to="/" />
           } />
           {features.map(f => (
             <Route key={f.key} path={`/${f.path}`} element={

@@ -265,6 +265,23 @@ const AuditLog = sequelize.define('AuditLog', {
   ipAddress: { type: DataTypes.STRING }
 }, { tableName: 'audit_logs', timestamps: true, updatedAt: false });
 
+// AI Results (persisted AI analysis history)
+const AIResult = sequelize.define('AIResult', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  userId: { type: DataTypes.INTEGER },
+  analysisType: { type: DataTypes.STRING, allowNull: false }, // 'analyze', 'generate', 'compare-scenarios', 'compliance-check', 'sensor-fusion', 'score-scenario'
+  entityType: { type: DataTypes.STRING },
+  entityId: { type: DataTypes.INTEGER },
+  entityName: { type: DataTypes.STRING },
+  prompt: { type: DataTypes.TEXT },
+  content: { type: DataTypes.TEXT },
+  parsed: { type: DataTypes.JSONB, defaultValue: null },
+  model: { type: DataTypes.STRING },
+  promptTokens: { type: DataTypes.INTEGER },
+  completionTokens: { type: DataTypes.INTEGER },
+  success: { type: DataTypes.BOOLEAN, defaultValue: true }
+}, { tableName: 'ai_results', timestamps: true });
+
 // Favorites
 const Favorite = sequelize.define('Favorite', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -278,6 +295,7 @@ const Favorite = sequelize.define('Favorite', {
 module.exports = {
   sequelize,
   User,
+  AIResult,
   VehicleModel,
   SensorConfig,
   DrivingScenario,
@@ -294,5 +312,6 @@ module.exports = {
   CollisionAnalysis,
   RegulatoryCompliance,
   AuditLog,
-  Favorite
+  Favorite,
+  AIResult
 };
