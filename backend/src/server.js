@@ -167,3 +167,7 @@ app.use('/api/gap-lidar-radar-simulation', require('./routes/gap_lidar_radar_sim
 app.use('/api/gap-traffic-surrounding-vehicle-modeling', require('./routes/gap_traffic_surrounding_vehicle_modeling'));
 app.use('/api/gap-notifications-subsystem', require('./routes/gap_notifications_subsystem'));
 app.use('/api/gap-outbound-webhooks', require('./routes/gap_outbound_webhooks'));
+
+// ── Custom Views: 4 endpoints — coverage matrix, sensor-fusion heatmap, scenario PDF, scenario editor CRUD
+//    Mounted BEFORE any 404/catch-all handler.
+app.use('/api/custom-views', require('./routes/customViews'));

@@ -17,6 +17,7 @@ import CompliancePathwayPage from './pages/CompliancePathwayPage';
 import SafetyMetricsPage from './pages/SafetyMetricsPage';
 import AIScenarioSafetyPage from './pages/AIScenarioSafetyPage';
 import ExtensionsPage from './pages/ExtensionsPage'; // Apply pass 5
+import CustomViewsPage from './pages/CustomViewsPage';
 import './App.css';
 
 const features = [
@@ -106,6 +107,9 @@ function App() {
           } />
           <Route path="/extensions" element={
             isAuthenticated ? <ExtensionsPage /> : <Navigate to="/" />
+          } />
+          <Route path="/custom-views" element={
+            isAuthenticated ? <CustomViewsPage onLogout={handleLogout} /> : <Navigate to="/" />
           } />
           {features.map(f => (
             <Route key={f.key} path={`/${f.path}`} element={

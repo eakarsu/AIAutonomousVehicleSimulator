@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:3001/api' });
+const API = axios.create({ baseURL: 'http://localhost:3501/api' });
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -122,6 +122,19 @@ export const trainingSessions = {
 // ── Dashboard risk score ──────────────────────────────────────────────────
 export const dashboardRisk = {
   getRiskScore: () => API.get('/dashboard/risk-score'),
+};
+
+// ── Custom Views (4 endpoints: coverage matrix, sensor-fusion heatmap, scenario PDF, scenario editor CRUD)
+export const customViews = {
+  // VIZ
+  scenarioCoverage: () => API.get('/custom-views/scenario-coverage'),
+  sensorFusionAccuracy: () => API.get('/custom-views/sensor-fusion-accuracy'),
+  // NON-VIZ
+  scenarioSpecPdfUrl: (id) => `${API.defaults.baseURL}/custom-views/scenario-spec/pdf${id ? '/' + id : ''}`,
+  scenarioEditorList: () => API.get('/custom-views/scenario-editor'),
+  scenarioEditorCreate: (data) => API.post('/custom-views/scenario-editor', data),
+  scenarioEditorUpdate: (id, data) => API.put(`/custom-views/scenario-editor/${id}`, data),
+  scenarioEditorDelete: (id) => API.delete(`/custom-views/scenario-editor/${id}`),
 };
 
 export default API;
