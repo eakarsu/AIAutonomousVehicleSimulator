@@ -135,6 +135,16 @@ export function getTableColumns(featureKey) {
       { field: 'certificationBody', label: 'Certification Body' },
       { field: 'status', label: 'Status' },
     ],
+    oddCoverageMatrix: [
+      { field: 'name', label: 'Coverage Gap' },
+      { field: 'domain', label: 'ODD Domain' },
+      { field: 'weather', label: 'Weather' },
+      { field: 'lighting', label: 'Lighting' },
+      { field: 'scenarioCount', label: 'Scenarios' },
+      { field: 'passRate', label: 'Pass Rate' },
+      { field: 'riskLevel', label: 'Risk' },
+      { field: 'status', label: 'Status' },
+    ],
   };
   return configs[featureKey] || [];
 }
@@ -315,6 +325,18 @@ export function getFormFields(featureKey) {
       { field: 'complianceStatus', label: 'Compliance Status', type: 'select', options: ['Compliant', 'In Progress', 'Pending', 'Non-Compliant'] },
       { field: 'certificationBody', label: 'Certification Body', type: 'text' },
       { field: 'status', label: 'Status', type: 'select', options: ['active', 'inactive', 'expired'] },
+      { field: 'description', label: 'Description', type: 'textarea', fullWidth: true },
+    ],
+    oddCoverageMatrix: [
+      { field: 'name', label: 'Coverage Gap', type: 'text', required: true },
+      { field: 'domain', label: 'ODD Domain', type: 'select', options: ['Dense urban', 'Urban', 'Suburban', 'Highway', 'Rural', 'Campus', 'Industrial'] },
+      { field: 'weather', label: 'Weather', type: 'select', options: ['Clear', 'Rain', 'Snow', 'Fog', 'Mixed'] },
+      { field: 'lighting', label: 'Lighting', type: 'select', options: ['Day', 'Night', 'Dawn/Dusk', 'Glare'] },
+      { field: 'roadType', label: 'Road Type', type: 'text' },
+      { field: 'scenarioCount', label: 'Scenario Count', type: 'number' },
+      { field: 'passRate', label: 'Pass Rate (%)', type: 'number' },
+      { field: 'riskLevel', label: 'Risk Level', type: 'select', options: ['Low', 'Medium', 'High', 'Critical'] },
+      { field: 'status', label: 'Status', type: 'select', options: ['covered', 'needs_expansion', 'blocked', 'retired'] },
       { field: 'description', label: 'Description', type: 'textarea', fullWidth: true },
     ],
   };

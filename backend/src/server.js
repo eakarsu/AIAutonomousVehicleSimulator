@@ -103,6 +103,7 @@ app.use('/api/map-environments', createCrudRouter(MapEnvironment, 'Map Environme
 app.use('/api/ai-models', createCrudRouter(AIModel, 'AI Model', aiPrompts.aiModel));
 app.use('/api/collision-analyses', createCrudRouter(CollisionAnalysis, 'Collision Analysis', aiPrompts.collisionAnalysis));
 app.use('/api/regulatory-compliances', createCrudRouter(RegulatoryCompliance, 'Regulatory Compliance', aiPrompts.regulatoryCompliance));
+app.use('/api/odd-coverage-matrix', require('./routes/oddCoverageMatrix'));
 
 // ── Dashboard stats ───────────────────────────────────────────────────────
 app.use('/api/dashboard', require('./routes/dashboard'));

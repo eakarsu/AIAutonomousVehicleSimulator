@@ -131,6 +131,7 @@ function Dashboard({ onLogout, theme, setTheme }) {
           <button className="quick-action-btn" onClick={() => navigate('/scenario-comparison')}>🆚 Scenario Compare</button>
           <button className="quick-action-btn" onClick={() => navigate('/compliance-pathway')}>📋 Regulatory Pathway</button>
           <button className="quick-action-btn" onClick={() => navigate('/ai-scenario-safety')}>🧪 Scenario & Safety AI</button>
+          <button className="quick-action-btn" onClick={() => navigate('/custom-views')} data-testid="nav-sim-views">🧩 Sim Views</button>
         </div>
 
         {/* Search */}

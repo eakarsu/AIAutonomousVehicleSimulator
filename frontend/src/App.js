@@ -20,6 +20,11 @@ import ExtensionsPage from './pages/ExtensionsPage'; // Apply pass 5
 import CustomViewsPage from './pages/CustomViewsPage';
 import './App.css';
 
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
+
 const features = [
   { key: 'vehicleModels', path: 'vehicle-models', title: 'Vehicle Models', icon: '🚗', endpoint: 'vehicle-models', color: '#3b82f6' },
   { key: 'sensorConfigs', path: 'sensor-configs', title: 'Sensor Configurations', icon: '📡', endpoint: 'sensor-configs', color: '#8b5cf6' },
@@ -36,6 +41,7 @@ const features = [
   { key: 'aiModels', path: 'ai-models', title: 'AI Models', icon: '🤖', endpoint: 'ai-models', color: '#e11d48' },
   { key: 'collisionAnalyses', path: 'collision-analyses', title: 'Collision Analysis', icon: '💥', endpoint: 'collision-analyses', color: '#dc2626' },
   { key: 'regulatoryCompliances', path: 'regulatory-compliances', title: 'Regulatory Compliance', icon: '📋', endpoint: 'regulatory-compliances', color: '#0891b2' },
+  { key: 'oddCoverageMatrix', path: 'odd-coverage-matrix', title: 'ODD Coverage Matrix', icon: '🧭', endpoint: 'odd-coverage-matrix', color: '#0d9488' },
 ];
 
 export { features };
@@ -66,6 +72,10 @@ function App() {
       <div className={`app theme-${theme}`}>
         <ToastContainer position="top-right" autoClose={3000} theme={theme} />
         <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
           <Route path="/" element={
             isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
           } />
