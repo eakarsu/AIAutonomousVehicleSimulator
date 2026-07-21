@@ -119,11 +119,7 @@ app.use('/api/simulation-runs', simulationRunsRouter);
 // ── Safety metrics dashboard ──────────────────────────────────────────────
 app.use('/api/analytics', analyticsRouter);
 
-// ── AI extended: compare-scenarios, compliance-check, SSE stream, new features
-app.use('/api/ai', aiExtendedRouter);
-
-// ── Apply pass 5 — backlog extensions (behavior model, env-randomize, carla, lidar/radar, AV platforms)
-app.use('/api/ai', require('./routes/extensions'));
+// Generic model-generated scenarios are quarantined from governed simulation runs.
 
 // ── AI Results history ────────────────────────────────────────────────────
 app.use('/api/ai-results', aiResultsRouter);
@@ -133,12 +129,13 @@ app.use('/api/training-sessions', trainingSessionsRouter);
 
 // ── PDF report generation ─────────────────────────────────────────────────
 app.use('/api/simulations', pdfReportRouter);
+app.use('/api/governed-runs', require('./routes/governedRuns'));
 
 async function start() {
   try {
     await sequelize.authenticate();
     console.log('Database connected');
-    await sequelize.sync();
+    await sequelize.authenticate();
     app.listen(PORT, () => {
       console.log(`AV Simulator Backend running on port ${PORT}`);
     });
@@ -158,16 +155,7 @@ app.use('/api/sae-compliance', require('./routes/saeCompliance'));
 app.use('/api/av-sim-bridge', require('./routes/avSimBridge'));
 
 // === Batch 00 Gaps & Frontend Mounts ===
-app.use('/api/gap-ai-scenario-generation-diverse-edge', require('./routes/gap_ai_scenario_generation_diverse_edge'));
-app.use('/api/gap-ai-vehicle-behavior-modeling', require('./routes/gap_ai_vehicle_behavior_modeling'));
-app.use('/api/gap-ai-safety-criticality-assessment-failures', require('./routes/gap_ai_safety_criticality_assessment_failures'));
-app.use('/api/gap-ai-environment-randomization-stress-testing', require('./routes/gap_ai_environment_randomization_stress_testing'));
-app.use('/api/gap-live-av-platform-integration-waymo', require('./routes/gap_live_av_platform_integration_waymo'));
-app.use('/api/gap-physics-simulation-engine-bridge', require('./routes/gap_physics_simulation_engine_bridge'));
-app.use('/api/gap-lidar-radar-simulation', require('./routes/gap_lidar_radar_simulation'));
-app.use('/api/gap-traffic-surrounding-vehicle-modeling', require('./routes/gap_traffic_surrounding_vehicle_modeling'));
-app.use('/api/gap-notifications-subsystem', require('./routes/gap_notifications_subsystem'));
-app.use('/api/gap-outbound-webhooks', require('./routes/gap_outbound_webhooks'));
+// Generated gap routes are retained in source but deliberately unmounted.
 
 // ── Custom Views: 4 endpoints — coverage matrix, sensor-fusion heatmap, scenario PDF, scenario editor CRUD
 //    Mounted BEFORE any 404/catch-all handler.

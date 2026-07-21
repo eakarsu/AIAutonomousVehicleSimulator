@@ -1,0 +1,5 @@
+const test=require('node:test');const assert=require('node:assert/strict');const{validateRun,evaluateMetrics,compareRuns}=require('../src/domain/scenarioPolicy');const h='a'.repeat(64);const valid={seed:42,scenarioVersion:'v1.2',mapDigest:h,sensorModelDigest:h,policyDigest:h,engineVersion:'engine-1',timeoutSeconds:600,cpuCores:4,memoryMb:2048,sandboxProfile:'no-network-readonly-inputs'};
+test('identical specs are deterministic',()=>assert.equal(validateRun(valid).runDigest,validateRun({...valid}).runDigest));
+test('resources and sandbox are bounded',()=>assert.throws(()=>validateRun({...valid,cpuCores:99}),/cpuCores/));
+test('metrics never assert real-world safety',()=>assert.equal(evaluateMetrics({distanceM:10,collisions:0,infractions:0,minimumTtcSeconds:2,completionSeconds:5}).safetyValidated,false));
+test('comparison detects regression',()=>assert.equal(compareRuns({runDigest:'b',metrics:{collisions:1,infractions:0,minimumTtcSeconds:1}},{runDigest:'a',metrics:{collisions:0,infractions:0,minimumTtcSeconds:2}}).regression,true));

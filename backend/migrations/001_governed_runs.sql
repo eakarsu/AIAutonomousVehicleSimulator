@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS governed_simulation_runs(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,idempotency_key TEXT NOT NULL,requested_by TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN('queued','running','completed','failed','cancelled')),specification JSONB NOT NULL,run_digest CHAR(64) NOT NULL,metrics JSONB,artifact_digest TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),UNIQUE(tenant_id,idempotency_key));
+CREATE TABLE IF NOT EXISTS governed_simulation_events(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,run_id TEXT NOT NULL REFERENCES governed_simulation_runs(id),actor_id TEXT NOT NULL,event_type TEXT NOT NULL,detail JSONB NOT NULL DEFAULT '{}',occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE INDEX IF NOT EXISTS governed_simulation_events_lookup ON governed_simulation_events(tenant_id,run_id,occurred_at);
+CREATE OR REPLACE FUNCTION reject_governed_simulation_event_mutation() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'governed simulation events are append-only'; END $$;
+DROP TRIGGER IF EXISTS governed_simulation_events_append_only ON governed_simulation_events;
+CREATE TRIGGER governed_simulation_events_append_only BEFORE UPDATE OR DELETE ON governed_simulation_events FOR EACH ROW EXECUTE FUNCTION reject_governed_simulation_event_mutation();

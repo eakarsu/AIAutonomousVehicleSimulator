@@ -25,11 +25,6 @@ function Login({ onLogin }) {
     }
   };
 
-  const fillDemo = () => {
-    setEmail('admin@avsimulator.com');
-    setPassword('admin123');
-  };
-
   return (
     <div className="login-page">
       <div className="login-container">
@@ -50,9 +45,6 @@ function Login({ onLogin }) {
           </div>
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-          <button type="button" className="demo-btn" onClick={fillDemo}>
-            Fill Demo Credentials
           </button>
         </form>
       </div>
