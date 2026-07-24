@@ -42,6 +42,7 @@ app.use(generalLimiter);
 
 // Auth routes (public)
 app.use('/api/auth', authRoutes);
+app.use('/api/runtime-ai', aiRateLimiter, require('./routes/runtimeAi'));
 
 // Health check (public)
 app.get('/api/health', (req, res) => {
