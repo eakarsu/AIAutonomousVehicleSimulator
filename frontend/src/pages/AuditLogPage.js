@@ -25,9 +25,11 @@ function AuditLogPage({ onLogout }) {
       if (filterAction) params.action = filterAction;
       if (filterEntity) params.entityType = filterEntity;
       const res = await auditLogs.getAll(params);
-      setLogs(res.data.data);
-      setTotal(res.data.total);
-      setTotalPages(res.data.totalPages);
+      const rows = Array.isArray(res.data) ? res.data : res.data?.data;
+      if (!Array.isArray(rows)) throw new Error('Invalid audit log response');
+      setLogs(rows);
+      setTotal(res.data?.pagination?.total ?? res.data?.total ?? rows.length);
+      setTotalPages(res.data?.pagination?.totalPages ?? res.data?.totalPages ?? 1);
     } catch (err) {
       toast.error('Failed to load audit logs');
     } finally {

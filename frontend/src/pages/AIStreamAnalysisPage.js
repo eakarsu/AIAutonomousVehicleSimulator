@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { aiExtended } from '../services/api';
+import AIReport from '../components/AIReport';
 
 /**
  * SSE-streamed AI analysis of a single simulation run.
@@ -90,9 +91,7 @@ function AIStreamAnalysisPage({ onLogout }) {
           </div>
           <div className="analytics-card wide">
             <h3>Live AI Output</h3>
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', lineHeight: 1.6, minHeight: 320 }}>
-              {output || 'AI tokens will stream here…'}
-            </pre>
+            {output ? <AIReport response={output} title="Simulation analysis" /> : <p>AI tokens will stream here…</p>}
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { aiExtended, services } from '../services/api';
+import AIReport from '../components/AIReport';
 
 /**
  * Side-by-side AI comparison of two driving scenarios.
@@ -18,7 +19,7 @@ function ScenarioComparisonPage({ onLogout }) {
 
   useEffect(() => {
     services.drivingScenarios.getAll({ limit: 1000 })
-      .then((res) => setScenarios(res.data?.data || res.data || []))
+      .then((res) => setScenarios(Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []))
       .catch(() => toast.error('Failed to load scenarios'));
   }, []);
 
@@ -33,6 +34,15 @@ function ScenarioComparisonPage({ onLogout }) {
     } finally {
       setLoading(false);
     }
+  };
+  const fillExample = (index) => {
+    const choices = scenarios.filter((scenario) => scenario.id != null);
+    if (choices.length < 2) return;
+    const valid = (id) => choices.some((scenario) => String(scenario.id) === id);
+    const first = valid(a) ? a : String(choices[index % choices.length].id);
+    const second = valid(b) && b !== first ? b : String(choices.find((scenario) => String(scenario.id) !== first).id);
+    setA(first);
+    setB(second);
   };
 
   return (
@@ -53,6 +63,10 @@ function ScenarioComparisonPage({ onLogout }) {
         </div>
 
         <div className="analytics-card" style={{ marginBottom: 20 }}>
+          <div className="ai-actions" style={{ marginBottom: 12 }}>
+            {[0, 1, 2].map((index) => <button key={index} type="button" className="btn btn-secondary" disabled={loading || scenarios.length < 2} onClick={() => fillExample(index)}>Fill scenario pair {index + 1}</button>)}
+          </div>
+          {scenarios.length < 2 && <p role="status">Two saved scenarios are required before an example can be filled.</p>}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 12, alignItems: 'end' }}>
             <div>
               <label>Scenario A</label>
@@ -92,7 +106,7 @@ function ScenarioComparisonPage({ onLogout }) {
             </div>
             <div className="analytics-card wide">
               <h3>🤖 AI Comparison</h3>
-              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', lineHeight: 1.6 }}>{result.comparison}</pre>
+              <AIReport response={result.comparison} title="Scenario comparison" />
             </div>
           </div>
         )}

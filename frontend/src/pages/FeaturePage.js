@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createService, favorites, auditLogs } from '../services/api';
 import { toast } from 'react-toastify';
 import { getFormFields, getTableColumns } from '../components/FeatureConfig';
+import AIReport from '../components/AIReport';
 
 function FeaturePage({ feature, onLogout }) {
   const [items, setItems] = useState([]);
@@ -21,7 +22,7 @@ function FeaturePage({ feature, onLogout }) {
   const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState('ASC');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(parseInt(localStorage.getItem('pageSize') || '10'));
+  const [pageSize] = useState(Math.max(15, parseInt(localStorage.getItem('pageSize'), 10) || 20));
   const [totalItems, setTotalItems] = useState(0);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
@@ -41,14 +42,12 @@ function FeaturePage({ feature, onLogout }) {
       const params = { page: currentPage, limit: pageSize, sortBy, sortOrder };
       if (searchTerm) params.search = searchTerm;
       const res = await service.getAll(params);
-      if (res.data.data) {
-        setItems(res.data.data);
-        setTotalItems(res.data.total);
-      } else {
-        setItems(res.data);
-        setTotalItems(res.data.length);
-      }
+      const rows = Array.isArray(res.data) ? res.data : res.data?.data;
+      if (!Array.isArray(rows)) throw new Error('Invalid record list response');
+      setItems(rows);
+      setTotalItems(res.data?.pagination?.total ?? res.data?.total ?? rows.length);
     } catch (err) {
+      setItems([]);
       toast.error('Failed to load data');
     } finally {
       setLoading(false);
@@ -58,7 +57,9 @@ function FeaturePage({ feature, onLogout }) {
   const loadFavorites = useCallback(async () => {
     try {
       const res = await favorites.getAll(feature.endpoint);
-      const favIds = new Set(res.data.filter(f => f.entityType === feature.endpoint).map(f => f.entityId));
+      const rows = Array.isArray(res.data) ? res.data : res.data?.data;
+      if (!Array.isArray(rows)) throw new Error('Invalid favorites response');
+      const favIds = new Set(rows.filter(f => f.entityType === feature.endpoint).map(f => f.entityId));
       setUserFavorites(favIds);
     } catch (err) { /* ignore */ }
   }, [feature.endpoint]);
@@ -564,7 +565,7 @@ function FeaturePage({ feature, onLogout }) {
                     <div className="detail-value">
                       {val === null || val === undefined ? '-' :
                        typeof val === 'boolean' ? (val ? 'Yes' : 'No') :
-                       typeof val === 'object' ? JSON.stringify(val, null, 2) :
+                       typeof val === 'object' ? <AIReport response={val} title={key.replace(/([A-Z])/g, ' $1')} /> :
                        String(val)}
                     </div>
                   </div>
@@ -585,7 +586,7 @@ function FeaturePage({ feature, onLogout }) {
                 <div className="ai-output">
                   <div className="ai-output-header">AI Analysis {aiResult.model && `(${aiResult.model})`}</div>
                   <div className="ai-output-body">
-                    {aiResult.success ? renderAiContent(aiResult.content) : (
+                    {aiResult.success ? <AIReport response={aiResult.content} title="AI analysis" /> : (
                       <div className="ai-section">
                         <div className="ai-section-content" style={{ color: '#fca5a5' }}>
                           {aiResult.error || 'AI analysis unavailable. Please configure your OpenRouter API key in .env'}
@@ -660,6 +661,13 @@ function FeaturePage({ feature, onLogout }) {
             <div className="modal-body">
               <textarea className="ai-gen-input" value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)}
                 placeholder={`Describe what kind of ${feature.title.toLowerCase()} you want to generate...`} />
+              <div className="ai-actions">
+                {[
+                  `Create a realistic ${feature.title.toLowerCase()} draft for a controlled urban driving test. State assumptions and include required safety checks.`,
+                  `Prepare ${feature.title.toLowerCase()} for a rainy highway merge simulation. Include measurable goals, constraints, and review steps.`,
+                  `Draft ${feature.title.toLowerCase()} for an edge case involving a pedestrian near an occluded intersection. Identify missing evidence and validation criteria.`,
+                ].map((example, index) => <button key={index} type="button" className="btn btn-secondary" disabled={aiLoading} onClick={() => setAiPrompt(example)}>Fill example {index + 1}</button>)}
+              </div>
               <div className="form-actions">
                 <button type="button" className="btn-cancel" onClick={() => setShowAiGen(false)}>Close</button>
                 <button className="btn-ai" onClick={handleAiGenerate} disabled={aiLoading}>
@@ -676,7 +684,7 @@ function FeaturePage({ feature, onLogout }) {
                 <div className="ai-output" style={{ marginTop: 20 }}>
                   <div className="ai-output-header">AI Generated Content {aiResult.model && `(${aiResult.model})`}</div>
                   <div className="ai-output-body">
-                    {aiResult.success ? renderAiContent(aiResult.content) : (
+                    {aiResult.success ? <AIReport response={aiResult.content} title="AI generated content" /> : (
                       <div className="ai-section">
                         <div className="ai-section-content" style={{ color: '#fca5a5' }}>
                           {aiResult.error || 'AI generation unavailable. Please configure your OpenRouter API key in .env'}

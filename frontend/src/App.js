@@ -1,3 +1,4 @@
+import AIReportLibrary from "./components/AIReportLibrary";
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -68,7 +69,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <><AIReportLibrary floating /><Router>
       <div className={`app theme-${theme}`}>
         <ToastContainer position="top-right" autoClose={3000} theme={theme} />
         <Routes>
@@ -128,7 +129,7 @@ function App() {
           ))}
         </Routes>
       </div>
-    </Router>
+    </Router></>
   );
 }
 

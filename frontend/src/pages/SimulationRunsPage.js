@@ -30,10 +30,13 @@ function SimulationRunsPage({ onLogout }) {
         services.vehicleModels.getAll({ limit: 1000 }),
         services.drivingScenarios.getAll({ limit: 1000 }),
       ]);
-      // Handle both paginated {data, pagination} and legacy array response
-      setRuns(Array.isArray(r.data) ? r.data : (r.data?.data || []));
-      setVehicles(v.data?.data || v.data || []);
-      setScenarios(s.data?.data || s.data || []);
+      // Each source must be a real array, including when wrapped by pagination.
+      const rows = (response) => Array.isArray(response.data) ? response.data : response.data?.data;
+      const [runRows, vehicleRows, scenarioRows] = [rows(r), rows(v), rows(s)];
+      if (![runRows, vehicleRows, scenarioRows].every(Array.isArray)) throw new Error('Invalid simulation list response');
+      setRuns(runRows);
+      setVehicles(vehicleRows);
+      setScenarios(scenarioRows);
     } catch (e) {
       toast.error('Failed to load runs');
     }

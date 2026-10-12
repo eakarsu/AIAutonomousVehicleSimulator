@@ -14,7 +14,9 @@ function FavoritesPage({ onLogout }) {
   const loadFavorites = async () => {
     try {
       const res = await favorites.getAll();
-      setFavs(res.data);
+      const rows = Array.isArray(res.data) ? res.data : res.data?.data;
+      if (!Array.isArray(rows)) throw new Error('Invalid favorites response');
+      setFavs(rows);
     } catch (err) {
       toast.error('Failed to load favorites');
     } finally {

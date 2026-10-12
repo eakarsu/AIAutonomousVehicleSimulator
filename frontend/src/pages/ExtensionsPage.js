@@ -1,8 +1,9 @@
 // Apply pass 5 — surface /api/ai/* extension endpoints
 import React, { useState } from 'react';
 import axios from 'axios';
+import AIReport from '../components/AIReport';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3501/api';
 
 function authHeaders() {
   const token = localStorage.getItem('token');
@@ -35,14 +36,16 @@ const SECTIONS = [
     title: 'CARLA Dispatch Scenario (NEEDS-CREDS)',
     method: 'POST',
     path: '/ai/carla/dispatch',
-    sample: { scenario_id: 1, simulator: 'carla' },
+    sample: { simulator: 'carla' },
+    prerequisite: 'Select an actual saved scenario in the native scenario workflow before dispatching.',
   },
   {
     id: 'lidar',
     title: 'Lidar/Radar Sim Stub (TOO-RISKY → in-memory points)',
     method: 'POST',
-    path: '/ai/lidar-radar/simulate',
-    sample: { sensor_config_id: 1, scenario_id: 1, density: 0.5 },
+    path: '/ai/lidar-simulate',
+    sample: { density: 0.5 },
+    prerequisite: 'Actual saved sensor configuration and scenario references are required.',
   },
   {
     id: 'av-status',
@@ -52,10 +55,8 @@ const SECTIONS = [
   },
   {
     id: 'av-export',
-    title: 'AV Platform Export (NEEDS-CREDS)',
-    method: 'POST',
-    path: '/ai/av-platform/export',
-    sample: { simulation_result_id: 1 },
+    title: 'AV Platform Export (unavailable)',
+    prerequisite: 'No export endpoint is implemented. A vendor integration and an actual saved simulation result are required.',
   },
 ];
 
@@ -84,10 +85,11 @@ export default function ExtensionsPage() {
         <div key={s.id} style={{ border: '1px solid #ddd', borderRadius: 6, padding: 12, margin: '12px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <strong>{s.title}</strong>
-            <button onClick={() => run(s)} disabled={busy[s.id]}>
+            {s.path ? <button onClick={() => run(s)} disabled={busy[s.id] || Boolean(s.prerequisite)}>
               {busy[s.id] ? 'Calling…' : `Run ${s.method}`}
-            </button>
+            </button> : <span>Unavailable</span>}
           </div>
+          {s.prerequisite && <p role="status">{s.prerequisite}</p>}
           {s.sample && (
             <details>
               <summary>Sample payload</summary>
@@ -97,7 +99,7 @@ export default function ExtensionsPage() {
           {out[s.id] && (
             <div>
               <div>HTTP <code>{out[s.id].status}</code></div>
-              <pre>{JSON.stringify(out[s.id].body, null, 2)}</pre>
+              <AIReport response={out[s.id].body} title={s.title} />
             </div>
           )}
         </div>

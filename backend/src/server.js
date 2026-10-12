@@ -123,6 +123,8 @@ app.use('/api/analytics', analyticsRouter);
 // Generic model-generated scenarios are quarantined from governed simulation runs.
 
 // ── AI Results history ────────────────────────────────────────────────────
+app.use('/api/ai', aiExtendedRouter);
+app.use('/api/ai', require('./routes/extensions'));
 app.use('/api/ai-results', aiResultsRouter);
 
 // ── Training session progress simulator ─────────────────────────────────
@@ -132,6 +134,14 @@ app.use('/api/training-sessions', trainingSessionsRouter);
 app.use('/api/simulations', pdfReportRouter);
 app.use('/api/governed-runs', require('./routes/governedRuns'));
 
+
+// Advisory AI reports only; native execution and approval routes stay unchanged.
+const aiWorkspaceSupport = require("../aiWorkspaceAdapters.cjs");
+const aiWorkspaceDatabase = aiWorkspaceSupport.sequelizeQueryClient(require("./config/database.js"));
+app.use('/api/report-workspace', require("../aiWorkspace.cjs").createAIWorkspaceRouter({
+  pool: aiWorkspaceDatabase, authenticateToken: require("./middleware/auth.js"),
+  aiRateLimiter: aiWorkspaceSupport.createWorkspaceLimiter(), features: require("../aiWorkspaceFeatures.json"),
+}));
 async function start() {
   try {
     await sequelize.authenticate();

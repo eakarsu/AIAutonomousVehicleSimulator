@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+const configuredApiUrl = (process.env.REACT_APP_API_URL || 'http://localhost:3501').replace(/\/+$/, '');
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3501/api',
+  baseURL: configuredApiUrl.endsWith('/api') ? configuredApiUrl : `${configuredApiUrl}/api`,
 });
 
 API.interceptors.request.use((config) => {
@@ -24,6 +25,7 @@ API.interceptors.response.use(
 
 export const auth = {
   login: (data) => API.post('/auth/login', data),
+  demoLogin: () => API.post('/auth/demo-login'),
   register: (data) => API.post('/auth/register', data),
 };
 

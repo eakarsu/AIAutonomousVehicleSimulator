@@ -93,7 +93,7 @@ async function ensureTables() {
     console.error('extensions ensureTables failed (non-fatal):', e.message);
   }
 }
-ensureTables();
+// Router import is read-only. Optional history inserts below remain best-effort when helper tables are absent.
 
 // ───────────────────────────────────────────────────────────────────────────
 // 1. AI vehicle behavior modeling (TOO-RISKY → text-grounded)
@@ -216,7 +216,7 @@ function carlaCreds() {
 
 router.get('/carla/status', authMiddleware, async (req, res) => {
   const missing = carlaCreds();
-  if (missing.length) return res.status(503).json({ error: 'External simulator credentials missing', missing });
+  if (missing.length) return res.json({ connected: false, ready: false, message: 'External simulator credentials are not configured', missing });
   res.json({ connected: false, ready: true, simulator: process.env.CARLA_SIMULATOR || 'carla', note: 'Stub: credentials present; live socket not implemented in pass 5.' });
 });
 
@@ -342,7 +342,7 @@ function avPlatformCreds() {
 
 router.get('/av-platform/status', authMiddleware, async (req, res) => {
   const missing = avPlatformCreds();
-  if (missing.length) return res.status(503).json({ error: 'AV platform credentials missing', missing });
+  if (missing.length) return res.json({ connected: false, ready: false, message: 'AV platform credentials are not configured', missing });
   const platform = (req.query.platform || process.env.AV_PLATFORM || 'waymo').toString().toLowerCase();
   res.json({ platform, supported: ['waymo', 'cruise', 'tesla'].includes(platform), connected: false, note: 'Pass-5 stub.' });
 });

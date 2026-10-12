@@ -39,6 +39,30 @@ router.post('/login', loginValidation, async (req, res) => {
   }
 });
 
+// Local demo access uses the configured account without exposing its password to the browser.
+router.post('/demo-login', async (req, res) => {
+  if (process.env.NODE_ENV === 'production' || !['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.ip)) {
+    return res.status(403).json({ error: 'Demo login is available only on a local development server' });
+  }
+  const email = process.env.DEMO_EMAIL;
+  const password = process.env.DEMO_PASSWORD;
+  if (!email || !password) return res.status(503).json({ error: 'Demo credentials are not configured' });
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(503).json({ error: 'The configured demo account is unavailable' });
+    }
+    const token = jwt.sign(
+      { id: user.id, email: user.email, name: user.name, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    return res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+  } catch (_) {
+    return res.status(500).json({ error: 'Demo login is unavailable' });
+  }
+});
+
 router.post('/register', registerValidation, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

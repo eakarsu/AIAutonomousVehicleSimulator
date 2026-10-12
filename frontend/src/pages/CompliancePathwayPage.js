@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { aiExtended, services } from '../services/api';
+import AIReport from '../components/AIReport';
 
 /**
  * Regulatory Pathway Assistant.
@@ -28,7 +29,7 @@ function CompliancePathwayPage({ onLogout }) {
 
   useEffect(() => {
     services.vehicleModels.getAll({ limit: 1000 })
-      .then((res) => setVehicles(res.data?.data || res.data || []))
+      .then((res) => setVehicles(Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []))
       .catch(() => toast.error('Failed to load vehicles'));
   }, []);
 
@@ -43,6 +44,12 @@ function CompliancePathwayPage({ onLogout }) {
     } finally {
       setLoading(false);
     }
+  };
+  const fillExample = (index) => {
+    const choices = vehicles.filter((vehicle) => vehicle.id != null);
+    if (!choices.length) return;
+    setVehicleId((current) => current && choices.some((vehicle) => String(vehicle.id) === current) ? current : String(choices[index % choices.length].id));
+    setJurisdiction(JURISDICTIONS[index].code);
   };
 
   return (
@@ -63,6 +70,10 @@ function CompliancePathwayPage({ onLogout }) {
         </div>
 
         <div className="analytics-card" style={{ marginBottom: 20 }}>
+          <div className="ai-actions" style={{ marginBottom: 12 }}>
+            {['US review', 'EU review', 'UK review'].map((label, index) => <button key={label} type="button" className="btn btn-secondary" disabled={loading || !vehicles.length} onClick={() => fillExample(index)}>Fill {label}</button>)}
+          </div>
+          {!vehicles.length && <p role="status">A saved vehicle is required before an example can be filled.</p>}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 12, alignItems: 'end' }}>
             <div>
               <label>Vehicle</label>
@@ -101,7 +112,7 @@ function CompliancePathwayPage({ onLogout }) {
             </div>
             <div className="analytics-card wide">
               <h3>🤖 AI Compliance Report ({result.jurisdiction})</h3>
-              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', lineHeight: 1.6 }}>{result.compliance_analysis}</pre>
+              <AIReport response={result.compliance_analysis} title="Compliance report" />
               <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>Checked at {result.checked_at}</div>
             </div>
           </div>
