@@ -25,6 +25,7 @@ import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
 import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 import TimelineView from './pages/TimelineView';
+import FeaturePack27A from './components/FeaturePack27A';
 
 const features = [
   { key: 'vehicleModels', path: 'vehicle-models', title: 'Vehicle Models', icon: '🚗', endpoint: 'vehicle-models', color: '#3b82f6' },
@@ -74,6 +75,7 @@ function App() {
         <ToastContainer position="top-right" autoClose={3000} theme={theme} />
         <Routes>
         <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/feature-pack" element={<FeaturePack27A />} />
         <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
         <Route path="/codex/operations" element={<CodexOperationsFeature />} />
 

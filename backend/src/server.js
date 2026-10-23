@@ -92,6 +92,7 @@ app.put('/api/simulation-results/:id', simParamValidation, validateSimParams);
 app.use('/api/vehicle-models', createCrudRouter(VehicleModel, 'Vehicle Model', aiPrompts.vehicleModel));
 app.use('/api/sensor-configs', createCrudRouter(SensorConfig, 'Sensor Configuration', aiPrompts.sensorConfig));
 app.use('/api/driving-scenarios', createCrudRouter(DrivingScenario, 'Driving Scenario', aiPrompts.drivingScenario));
+app.use('/api/feature-pack', require('./routes/featurePack27a').createFeaturePackRouter({ authenticate: authMiddleware, loadRecords: async () => (await DrivingScenario.findAll({ limit: 200 })).map((r) => r.toJSON()) }));
 app.use('/api/training-sessions', createCrudRouter(TrainingSession, 'Training Session', aiPrompts.trainingSession));
 app.use('/api/simulation-results', createCrudRouter(SimulationResult, 'Simulation Result', aiPrompts.simulationResult));
 app.use('/api/route-plans', createCrudRouter(RoutePlan, 'Route Plan', aiPrompts.routePlan));

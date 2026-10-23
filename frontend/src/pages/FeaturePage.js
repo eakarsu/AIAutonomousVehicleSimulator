@@ -552,7 +552,7 @@ function FeaturePage({ feature, onLogout }) {
       {/* Detail Modal */}
       {selectedItem && (
         <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setSelectedItem(null); }}>
-          <div className="modal">
+          <div className="modal" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h2>{selectedItem.name}</h2>
               <button className="modal-close" onClick={() => setSelectedItem(null)}>✕</button>
@@ -604,6 +604,7 @@ function FeaturePage({ feature, onLogout }) {
               <button className="btn-edit" onClick={() => handleDuplicate(selectedItem)}>Duplicate</button>
               <button className="btn-edit" onClick={() => handleEdit(selectedItem)}>Edit</button>
               <button className="btn-delete" onClick={() => handleDelete(selectedItem.id)}>Delete</button>
+              <button className="btn-cancel" onClick={() => setSelectedItem(null)}>Cancel</button>
             </div>
           </div>
         </div>
